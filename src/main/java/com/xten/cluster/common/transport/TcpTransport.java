@@ -14,13 +14,21 @@ public abstract class TcpTransport implements Transport {
     @Override
     public void start() {
 
-        if (!lifecycleState.canMoveToStart()){
-            return;
-        }
+        boolean success = false;
+        try {
+            if (!lifecycleState.canMoveToStart()){
+                return;
+            }
 
-        lifecycleState.moveToStarted();
-        doStart();
-        lifecycleState.started();
+            lifecycleState.moveToStarted();
+            doStart();
+            lifecycleState.started();
+            success = true;
+        } finally {
+            if (!success){
+                stop();
+            }
+        }
     }
 
     public abstract void doStart();

@@ -84,6 +84,14 @@ public class ConsulService {
     }
 
     /**
+     * 返回Consul客户端
+     * @return
+     */
+    public Consul getConsul(){
+        return consul;
+    }
+
+    /**
      * 释放某一个key钟的锁
      * @param key
      * @param sessionId
@@ -256,7 +264,7 @@ public class ConsulService {
      */
     public Boolean putValue(JsonMeta metadata){
 
-        return consul.keyValueClient().putValue(metadata.key(), metadata.toJsonContent());
+        return consul.keyValueClient().putValue(metadata.key(), metadata.toContent());
     }
 
     /**

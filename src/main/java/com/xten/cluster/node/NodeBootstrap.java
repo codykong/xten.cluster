@@ -5,6 +5,7 @@ import com.google.inject.Injector;
 import com.xten.cluster.common.configuration.Configuration;
 import com.xten.cluster.common.configuration.ConfigurationModule;
 import com.xten.cluster.common.consul.ConsulModule;
+import com.xten.cluster.common.consul.listener.ListenerModule;
 import com.xten.cluster.common.inject.ModulesBuilder;
 import com.xten.cluster.common.transport.TransportModule;
 import com.xten.cluster.metadata.ClusterMetaModule;
@@ -31,6 +32,7 @@ public class NodeBootstrap {
         ModulesBuilder modules = new ModulesBuilder();
         modules.add(new ConfigurationModule(configuration));
         modules.add(new ConsulModule());
+        modules.add(new ListenerModule());
         modules.add(new TransportModule());
         modules.add(new ClusterMetaModule());
 

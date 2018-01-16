@@ -12,6 +12,7 @@ public class ConsulModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(ConsulService.class).asEagerSingleton();
+
     }
 
 

@@ -74,7 +74,7 @@ public class NettyTransport extends TcpTransport {
         serverBootstrap.group(new NioEventLoopGroup(workerCount))
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.SO_BACKLOG,100)
-                .handler(new LoggingHandler(LogLevel.INFO))
+//                .handler(new LoggingHandler(LogLevel.INFO))
                 .childHandler( getServerChannelInitializer());
 
 

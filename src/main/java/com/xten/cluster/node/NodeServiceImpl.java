@@ -2,6 +2,8 @@ package com.xten.cluster.node;
 
 import com.google.inject.Inject;
 import com.xten.cluster.common.configuration.Configuration;
+import com.xten.cluster.common.consul.listener.CacheListener;
+import com.xten.cluster.common.consul.listener.CacheListenerService;
 import com.xten.cluster.common.lifecycle.Lifecycle;
 import com.xten.cluster.common.transport.Transport;
 import com.xten.cluster.metadata.ClusterMetaService;
@@ -20,14 +22,17 @@ public class NodeServiceImpl implements NodeService {
     private final Configuration configuration;
     private final ClusterMetaService clusterMetaService;
     private final Transport transport;
+    private final CacheListenerService cacheListenerService;
 
     @Inject
     public NodeServiceImpl(Configuration configuration,
                            ClusterMetaService clusterMetaService,
-                           Transport transport){
+                           Transport transport,
+                           CacheListenerService cacheListenerService){
         this.configuration = configuration;
         this.clusterMetaService = clusterMetaService;
         this.transport = transport;
+        this.cacheListenerService = cacheListenerService;
     }
 
     @Override
@@ -45,6 +50,8 @@ public class NodeServiceImpl implements NodeService {
         clusterMetaService.currentNodeStatus(Lifecycle.State.RUNNING);
 
         clusterMetaService.electLeader();
+
+        cacheListenerService.start();
     }
 
     @Override

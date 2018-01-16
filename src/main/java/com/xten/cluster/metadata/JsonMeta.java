@@ -5,14 +5,17 @@ package com.xten.cluster.metadata;
  * User: kongqingyu
  * Date: 2018/1/3
  */
-public interface JsonMeta {
+public abstract class JsonMeta implements Metadata{
+
+    public final String toContent(){
+        return toJsonContent();
+    }
 
     /**
      * 序列化为json格式
      * @return
      */
-    String toJsonContent();
+    protected abstract String toJsonContent();
 
-    String key();
 
 }

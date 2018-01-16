@@ -3,6 +3,8 @@ package com.xten.cluster.metadata;
 
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nullable;
+
 /**
  * Description:
  * User: kongqingyu
@@ -17,12 +19,21 @@ public class MetaKey {
 
     /**
      * node元数据对应的key
-     * @param name
+     * @param name 当为null时获取所有的node
      * @return
      */
-    public static String node(String name){
+    public static String node(@Nullable String name){
         return generate(PREFIX_NODE,name);
     }
+
+    /**
+     * 所有node对应的key
+     * @return
+     */
+    public static String nodes(){
+        return node(null);
+    }
+
 
     /**
      * 选主所在的节点

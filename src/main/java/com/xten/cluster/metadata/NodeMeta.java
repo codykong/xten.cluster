@@ -8,7 +8,7 @@ import com.xten.cluster.common.lifecycle.Lifecycle;
  * User: kongqingyu
  * Date: 2018/1/2
  */
-public class NodeMeta implements JsonMeta {
+public class NodeMeta extends JsonMeta {
     private String name;
     private String ip;
     private String host;
