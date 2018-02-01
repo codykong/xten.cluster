@@ -1,6 +1,7 @@
 package com.xten.cluster.metadata;
 
 import com.google.inject.Inject;
+import com.xten.cluster.common.consul.meta.Metadata;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,8 +22,8 @@ public class ClusterMetaCache {
         nodeMetaMap.put(nodeMeta.key(),nodeMeta);
     }
 
-    public NodeMeta getNodeMeta(String key){
-        return (NodeMeta)nodeMetaMap.get(key);
+    public AgentMeta getNodeMeta(String key){
+        return (AgentMeta)nodeMetaMap.get(key);
     }
 
     public void delNodeMeta(String key){

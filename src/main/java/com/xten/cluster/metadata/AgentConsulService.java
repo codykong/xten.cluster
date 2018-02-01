@@ -13,30 +13,30 @@ import javax.annotation.Nullable;
  * User: kongqingyu
  * Date: 2018/1/3
  */
-public class NodeConsulService {
-    private final Logger LOG = LoggerFactory.getLogger(NodeConsulService.class);
+public class AgentConsulService {
+    private final Logger LOG = LoggerFactory.getLogger(AgentConsulService.class);
     private final ConsulService consulService;
 
     @Inject
-    public NodeConsulService(ConsulService consulService){
+    public AgentConsulService(ConsulService consulService){
         this.consulService = consulService;
     }
 
 
     @Nullable
-    public NodeMeta getNodeMetadata(String name){
+    public AgentMeta getAgentMetadata(String name){
 
-        Optional<String> optionalValue = consulService.getOptionalValue(MetaKey.node(name));
+        Optional<String> optionalValue = consulService.getOptionalValue(MetaKey.agent(name));
         if (optionalValue.isPresent()){
-            return NodeMeta.fromJsonContent(optionalValue.get());
+            return AgentMeta.fromJsonContent(optionalValue.get());
         }else {
             return null;
         }
     }
 
-    public void upset(NodeMeta nodeMetadata){
+    public void upset(AgentMeta agentMeta){
 
-        consulService.putValue(nodeMetadata);
+        consulService.putValue(agentMeta);
     }
 
 

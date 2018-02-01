@@ -42,8 +42,8 @@ public class NettyTransport extends TcpTransport {
 
         serverBootstrap = createServerBootstrap();
 
-        String ip = configuration.getString(ClusterOptions.NODE_RPC_ADDRESS_OPTION);
-        int port = ClusterConfigValue.getNodeRpcPort(configuration);
+        String ip = configuration.getString(ClusterOptions.AGENT_RPC_ADDRESS_OPTION);
+        int port = ClusterConfigValue.getAgentRpcPort(configuration);
 
         HostAndPort hostAndPort = HostAndPort.fromParts(ip,port);
         bindServer(hostAndPort);

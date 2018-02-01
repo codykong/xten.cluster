@@ -1,4 +1,4 @@
-package com.xten.cluster.node;
+package com.xten.cluster.agent;
 
 import com.xten.cluster.common.lifecycle.LifecycleComponent;
 
@@ -7,18 +7,18 @@ import com.xten.cluster.common.lifecycle.LifecycleComponent;
  * User: kongqingyu
  * Date: 2017/11/25
  */
-public interface NodeService extends LifecycleComponent {
+public interface AgentService extends LifecycleComponent {
 
     /**
      * 被通知节点已停止
      * @param nodeId
      */
-    void heardNodeStopped(String nodeId);
+    void heardAgentStopped(String nodeId);
 
     /**
      * 被通知节点已启动
      * @param nodeId
      */
-    void heardNodeStarted(String nodeId);
+    void heardAgentStarted(String nodeId);
 
 }

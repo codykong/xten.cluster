@@ -1,4 +1,4 @@
-package com.xten.cluster.node;
+package com.xten.cluster.agent;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -17,16 +17,16 @@ import org.slf4j.LoggerFactory;
  * User: kongqingyu
  * Date: 2017/12/27
  */
-public class NodeBootstrap {
+public class AgentBootstrap {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NodeBootstrap.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AgentBootstrap.class);
 
     private final Configuration configuration;
-    private final NodeService clusterNodeService;
+    private final AgentService clusterNodeService;
 
 
     @Inject
-    public NodeBootstrap(Configuration configuration){
+    public AgentBootstrap(Configuration configuration){
         this.configuration = configuration;
 
         ModulesBuilder modules = new ModulesBuilder();
@@ -37,12 +37,12 @@ public class NodeBootstrap {
         modules.add(new ClusterMetaModule());
 
         modules.add(b -> {
-            b.bind(NodeService.class).to(NodeServiceImpl.class).asEagerSingleton();
+            b.bind(AgentService.class).to(AgentServiceImpl.class).asEagerSingleton();
         });
 
         Injector injector = modules.createInjector();
 
-        clusterNodeService = injector.getInstance(NodeService.class);
+        clusterNodeService = injector.getInstance(AgentService.class);
 
         addShutdownHook();
     }
@@ -57,6 +57,7 @@ public class NodeBootstrap {
             LOG.error("start clusterNodeService error, stop begin:"+e.getMessage(),e);
             clusterNodeService.stop();
             LOG.error("start clusterNodeService error, stop end:");
+            System.exit(-1);
         }
     }
 

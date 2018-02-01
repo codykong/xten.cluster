@@ -14,7 +14,8 @@ import com.orbitz.consul.model.session.Session;
 import com.xten.cluster.common.configuration.ConfigConstants;
 import com.xten.cluster.common.configuration.Configuration;
 import com.xten.cluster.common.configuration.IllegalConfigurationException;
-import com.xten.cluster.metadata.JsonMeta;
+import com.xten.cluster.common.consul.meta.JsonMeta;
+import com.xten.cluster.common.consul.meta.LeaderMeta;
 import com.xten.cluster.metadata.MetaKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,8 @@ public class ConsulService {
      * 默认的服务检测时间间隔
      */
     public static final long DEFAULT_TTL = 3;
-    public static final String DEFAULT_CHECK_INTERVAL = "3s";
+    public static final String DEFAULT_CHECK_INTERVAL = "300ms";
+    public static final String DEFAULT_LOCK_DELAY = "1s";
     private static final int CREATE_SESSION_TRY_TIMES = 10;
     private static final int CREATE_SESSION_TRY_INTERVAL_MILLIS = 500;
     private static final int ELECT_LEADER_TRY_TIMES = 30;
@@ -131,8 +133,10 @@ public class ConsulService {
     public Optional<String> electLeaderForService(final String serviceName, final String info,String sessionId) {
         final String key = MetaKey.getServiceLeaderKey(serviceName);
         Boolean isLeader = false;
+        String leaderMetaInfo = new LeaderMeta(info,sessionId).toString();
+
         for (int i =1;i < ELECT_LEADER_TRY_TIMES;i++){
-            isLeader =consul.keyValueClient().acquireLock(key, info, sessionId);
+            isLeader =consul.keyValueClient().acquireLock(key, leaderMetaInfo, sessionId);
 
             Optional<Value> value = consul.keyValueClient().getValue(MetaKey.getServiceLeaderKey(serviceName));
             if (isLeader || (value.isPresent() && value.get().getSession().isPresent())){
@@ -152,7 +156,12 @@ public class ConsulService {
         if(isLeader){
             return Optional.of(info);
         }else{
-            return getLeaderInfoForService(serviceName);
+            Optional<LeaderMeta> metaOptional = getLeaderInfoForService(serviceName);
+            if (metaOptional.isPresent()){
+                return Optional.of(metaOptional.get().getInfo());
+            }else {
+                return Optional.absent();
+            }
         }
     }
 
@@ -161,13 +170,11 @@ public class ConsulService {
      * @param serviceName
      * @return
      */
-    public Optional<String> getLeaderInfoForService(final String serviceName) {
+    public Optional<LeaderMeta> getLeaderInfoForService(final String serviceName) {
         String key = MetaKey.getServiceLeaderKey(serviceName);
         Optional<Value> value = consul.keyValueClient().getValue(key);
         if(value.isPresent()){
-            if(value.get().getSession().isPresent()) {
-                return value.get().getValueAsString();
-            }
+            return Optional.of(LeaderMeta.fromJsonContent(value.get().getValueAsString().get())) ;
         }
         return Optional.absent();
     }
@@ -202,7 +209,7 @@ public class ConsulService {
      * @return
      */
     private String buildSession(String check,String name){
-        Session session = ImmutableSession.builder().addChecks(check)
+        Session session = ImmutableSession.builder().addChecks(check).lockDelay(DEFAULT_LOCK_DELAY)
                 .name(name).build();
         String sessionId = null;
 
@@ -211,7 +218,7 @@ public class ConsulService {
                 sessionId = consul.sessionClient().createSession(session).getId();
                 break;
             } catch (Exception e) {
-                LOG.info("try to create session error,try-num:"+i+"check is:"+check+"name is:"+name);
+                LOG.info("try to create session error,try-num:"+i+",check is:"+check+"name is:"+name);
                 try {
                     Thread.sleep(CREATE_SESSION_TRY_INTERVAL_MILLIS);
                 } catch (InterruptedException e1) {

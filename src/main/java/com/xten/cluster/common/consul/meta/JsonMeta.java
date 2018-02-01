@@ -1,4 +1,4 @@
-package com.xten.cluster.metadata;
+package com.xten.cluster.common.consul.meta;
 
 /**
  * Description:

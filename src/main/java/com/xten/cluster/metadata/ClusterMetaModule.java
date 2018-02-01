@@ -1,7 +1,8 @@
 package com.xten.cluster.metadata;
 
-import com.xten.cluster.common.consul.ConsulService;
 import com.xten.cluster.common.inject.AbstractModule;
+import com.xten.cluster.metadata.listener.AgentServiceCheckAction;
+import com.xten.cluster.metadata.listener.AgentMetaChangedAction;
 
 /**
  * Description:
@@ -13,7 +14,9 @@ public class ClusterMetaModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(ClusterMetaService.class).asEagerSingleton();
-        bind(NodeConsulService.class).asEagerSingleton();
+        bind(AgentConsulService.class).asEagerSingleton();
+        bind(AgentMetaChangedAction.class).asEagerSingleton();
+        bind(AgentServiceCheckAction.class).asEagerSingleton();
     }
 
 

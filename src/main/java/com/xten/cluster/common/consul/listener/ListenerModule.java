@@ -1,7 +1,8 @@
 package com.xten.cluster.common.consul.listener;
 
 import com.xten.cluster.common.consul.listener.kv.KVCacheListener;
-import com.xten.cluster.common.consul.listener.kv.NodeKVChangedAction;
+import com.xten.cluster.common.consul.listener.kv.LeaderChangedAction;
+import com.xten.cluster.common.consul.listener.service.ServiceCacheListener;
 import com.xten.cluster.common.inject.AbstractModule;
 
 /**
@@ -12,8 +13,10 @@ import com.xten.cluster.common.inject.AbstractModule;
 public class ListenerModule extends AbstractModule {
     @Override
     protected void configure() {
-        bind(NodeKVChangedAction.class).asEagerSingleton();
         bind(KVCacheListener.class).asEagerSingleton();
+        bind(ServiceCacheListener.class).asEagerSingleton();
+
         bind(CacheListenerService.class).asEagerSingleton();
+        bind(LeaderChangedAction.class).asEagerSingleton();
     }
 }

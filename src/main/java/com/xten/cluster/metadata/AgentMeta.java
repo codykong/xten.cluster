@@ -1,26 +1,35 @@
 package com.xten.cluster.metadata;
 
 import com.google.gson.Gson;
+import com.xten.cluster.common.consul.meta.JsonMeta;
 import com.xten.cluster.common.lifecycle.Lifecycle;
+import com.xten.cluster.common.util.AgentConstant;
 
 /**
  * Description:
  * User: kongqingyu
  * Date: 2018/1/2
  */
-public class NodeMeta extends JsonMeta {
+public class AgentMeta extends JsonMeta {
     private String name;
     private String ip;
     private String host;
     private Integer port;
     private Lifecycle.State status;
+    private AgentConstant.AgentType type;
 
-    public NodeMeta(String name, String ip, String host, Integer port, Lifecycle.State status){
+    public AgentMeta(String name, String ip, String host, Integer port, Lifecycle.State status){
+        this(name,ip,host,port,status, AgentConstant.AgentType.AGENT);
+    }
+
+    public AgentMeta(String name, String ip, String host, Integer port, Lifecycle.State status,
+                     AgentConstant.AgentType agentType){
         this.name = name;
         this.ip = ip;
         this.host = host;
         this.port = port;
         this.status = status;
+        this.type = agentType;
     }
 
     public String getHost() {
@@ -65,11 +74,11 @@ public class NodeMeta extends JsonMeta {
 
     @Override
     public String key() {
-        return MetaKey.node(name);
+        return MetaKey.agent(name);
     }
 
-    public static NodeMeta fromJsonContent(String jsonContent) {
-        return new Gson().fromJson(jsonContent,NodeMeta.class);
+    public static AgentMeta fromJsonContent(String jsonContent) {
+        return new Gson().fromJson(jsonContent,AgentMeta.class);
     }
 
     public String getIp() {
@@ -78,5 +87,17 @@ public class NodeMeta extends JsonMeta {
 
     public void setIp(String ip) {
         this.ip = ip;
+    }
+
+    public AgentConstant.AgentType getType() {
+        return type;
+    }
+
+    public String getAgentTypeName() {
+        return type.toTypeName();
+    }
+
+    public void setType(AgentConstant.AgentType type) {
+        this.type = type;
     }
 }

@@ -21,13 +21,13 @@ cluster.name: my-cluster
 # Common
 #==============================================================================
 # 节点的名称
-agent.name: localhost
+agent.name: localhost1
 
 # 节点的类型
 agent.type: agent
 
 # 节点端口
-agent.rpc.port: 8081
+agent.rpc.port: 8080
 
 # 节点端口
 agent.rpc.host: 127.0.0.1

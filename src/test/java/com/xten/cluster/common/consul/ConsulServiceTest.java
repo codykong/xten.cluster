@@ -67,10 +67,6 @@ public class ConsulServiceTest extends BaseTest{
     }
 
     @Test
-    public void putValue1() throws Exception {
-    }
-
-    @Test
     public void getOptionalValue() throws Exception {
     }
 
@@ -81,7 +77,7 @@ public class ConsulServiceTest extends BaseTest{
     @Test
     public void getValuesAsString() throws Exception {
 
-        List<String> nodes = consulService.getValuesAsString(MetaKey.nodes());
+        List<String> nodes = consulService.getValuesAsString(MetaKey.agents());
         LOG.info("nodes:{}",nodes);
 
     }

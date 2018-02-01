@@ -1,8 +1,7 @@
-package com.xten.cluster.node;
+package com.xten.cluster.agent;
 
 import com.google.inject.Inject;
 import com.xten.cluster.common.configuration.Configuration;
-import com.xten.cluster.common.consul.listener.CacheListener;
 import com.xten.cluster.common.consul.listener.CacheListenerService;
 import com.xten.cluster.common.lifecycle.Lifecycle;
 import com.xten.cluster.common.transport.Transport;
@@ -15,9 +14,9 @@ import org.slf4j.LoggerFactory;
  * User: kongqingyu
  * Date: 2017/12/27
  */
-public class NodeServiceImpl implements NodeService {
+public class AgentServiceImpl implements AgentService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NodeServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AgentServiceImpl.class);
 
     private final Configuration configuration;
     private final ClusterMetaService clusterMetaService;
@@ -25,10 +24,10 @@ public class NodeServiceImpl implements NodeService {
     private final CacheListenerService cacheListenerService;
 
     @Inject
-    public NodeServiceImpl(Configuration configuration,
-                           ClusterMetaService clusterMetaService,
-                           Transport transport,
-                           CacheListenerService cacheListenerService){
+    public AgentServiceImpl(Configuration configuration,
+                            ClusterMetaService clusterMetaService,
+                            Transport transport,
+                            CacheListenerService cacheListenerService){
         this.configuration = configuration;
         this.clusterMetaService = clusterMetaService;
         this.transport = transport;
@@ -38,16 +37,16 @@ public class NodeServiceImpl implements NodeService {
     @Override
     public void start() {
 
-        clusterMetaService.currentNodeStatus(Lifecycle.State.RUNNING);
+        clusterMetaService.currentAgentStatus(Lifecycle.State.STARTING);
 
         //do something such as start transport
         startRPC();
 
         //do something that you need to initialize your service
 
-        clusterMetaService.registerNode();
+        clusterMetaService.registerAgent();
 
-        clusterMetaService.currentNodeStatus(Lifecycle.State.RUNNING);
+        clusterMetaService.currentAgentStatus(Lifecycle.State.RUNNING);
 
         clusterMetaService.electLeader();
 
@@ -57,25 +56,15 @@ public class NodeServiceImpl implements NodeService {
     @Override
     public void stop() {
 
-        clusterMetaService.currentNodeStatus(Lifecycle.State.STOPPING);
+        clusterMetaService.currentAgentStatus(Lifecycle.State.STOPPING);
 
         clusterMetaService.releaseLeader();
 
         //do something that you need to do before stop your service
 
-        clusterMetaService.deregisterNode();
+        clusterMetaService.deregisterAgent();
 
-        clusterMetaService.currentNodeStatus(Lifecycle.State.STOPPED);
-
-    }
-
-    @Override
-    public void heardNodeStopped(String nodeId) {
-
-    }
-
-    @Override
-    public void heardNodeStarted(String nodeId) {
+        clusterMetaService.currentAgentStatus(Lifecycle.State.STOPPED);
 
     }
 
@@ -89,6 +78,16 @@ public class NodeServiceImpl implements NodeService {
 
     @Override
     public void close() {
+
+    }
+
+    @Override
+    public void heardAgentStopped(String nodeId) {
+
+    }
+
+    @Override
+    public void heardAgentStarted(String nodeId) {
 
     }
 }

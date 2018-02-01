@@ -12,10 +12,10 @@ public class ClusterConfigValue {
      * @param configuration
      * @return
      */
-    public static int getNodeRpcPort (Configuration configuration){
-        if (!configuration.containsKey(ConfigConstants.NODE_RPC_PORT_KEY)) {
-            throw new IllegalConfigurationException(ConfigConstants.NODE_RPC_PORT_KEY + "must be set");
+    public static int getAgentRpcPort (Configuration configuration){
+        if (!configuration.containsKey(ConfigConstants.AGENT_RPC_PORT_KEY)) {
+            throw new IllegalConfigurationException(ConfigConstants.AGENT_RPC_PORT_KEY + "must be set");
         }
-        return configuration.getInteger(ConfigConstants.NODE_RPC_PORT_KEY, 0);
+        return configuration.getInteger(ConfigConstants.AGENT_RPC_PORT_KEY, 0);
     }
 }

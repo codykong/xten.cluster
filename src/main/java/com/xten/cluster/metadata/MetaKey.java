@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 public class MetaKey {
 
     private static final String SEPARATOR = "/";
-    public static final String PREFIX_NODE = "node";
+    public static final String PREFIX_AGENT = "agent";
     public static final String PREFIX_ROOT = "cluster";
 
 
@@ -22,16 +22,16 @@ public class MetaKey {
      * @param name 当为null时获取所有的node
      * @return
      */
-    public static String node(@Nullable String name){
-        return generate(PREFIX_NODE,name);
+    public static String agent(@Nullable String name){
+        return generate(PREFIX_AGENT,name);
     }
 
     /**
      * 所有node对应的key
      * @return
      */
-    public static String nodes(){
-        return node(null);
+    public static String agents(){
+        return agent(null);
     }
 
 

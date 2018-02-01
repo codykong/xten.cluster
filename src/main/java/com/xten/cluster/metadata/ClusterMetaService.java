@@ -2,8 +2,9 @@ package com.xten.cluster.metadata;
 
 import com.google.inject.Inject;
 import com.xten.cluster.common.configuration.*;
-import com.xten.cluster.common.consul.NodeHealthService;
+import com.xten.cluster.common.consul.AgentHealthService;
 import com.xten.cluster.common.lifecycle.Lifecycle;
+import com.xten.cluster.common.util.AgentConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,65 +18,65 @@ public class ClusterMetaService {
     private static final Logger LOG = LoggerFactory.getLogger(ClusterMetaService.class);
 
     private final Configuration configuration;
-    private final NodeConsulService nodeConsulService;
-    private final NodeHealthService nodeHealthService;
-    private NodeMeta currentNode;
+    private final AgentConsulService agentConsulService;
+    private final AgentHealthService agentHealthService;
+    private AgentMeta currentAgent;
     private boolean isLeader;
 
     @Inject
     public ClusterMetaService(Configuration configuration,
-                              NodeConsulService nodeConsulService,
-                              NodeHealthService nodeHealthService){
+                              AgentConsulService agentConsulService,
+                              AgentHealthService agentHealthService){
         this.configuration = configuration;
-        this.nodeConsulService = nodeConsulService;
-        this.nodeHealthService = nodeHealthService;
+        this.agentConsulService = agentConsulService;
+        this.agentHealthService = agentHealthService;
         // 初始化当前node
-        currentNode();
+        currentAgent();
     }
 
     /**
-     * 获取远程FetchNode 信息
+     * 获取远程FetchAgent 信息
      * @return
      */
-    public synchronized NodeMeta currentNode(){
-        if (currentNode == null){
-            NodeMeta configNodeMeta = buildFromConfiguration(configuration);
+    public synchronized AgentMeta currentAgent(){
+        if (currentAgent == null){
+            AgentMeta configAgentMeta = buildFromConfiguration(configuration);
 
-            NodeMeta nodeMeta = nodeConsulService.getNodeMetadata(configNodeMeta.getName());
-            if (nodeMeta == null){
-                nodeMeta = configNodeMeta;
+            AgentMeta agentMeta = agentConsulService.getAgentMetadata(configAgentMeta.getName());
+            if (agentMeta == null){
+                agentMeta = configAgentMeta;
             }else {
-                mergeFromConfig(nodeMeta,configNodeMeta);
+                mergeFromConfig(agentMeta,configAgentMeta);
             }
 
-            nodeMeta.setStatus(Lifecycle.State.INITIALIZED);
-            nodeConsulService.upset(nodeMeta);
-            currentNode = nodeMeta;
+            agentMeta.setStatus(Lifecycle.State.INITIALIZED);
+            agentConsulService.upset(agentMeta);
+            currentAgent = agentMeta;
         }
 
-        return currentNode;
+        return currentAgent;
 
     }
 
     /**
      * 注册本节点
      */
-    public synchronized void registerNode(){
-        nodeHealthService.registerNode(currentNode);
+    public synchronized void registerAgent(){
+        agentHealthService.registerAgent(currentAgent);
     }
 
     /**
      * 注销本节点
      */
-    public synchronized void deregisterNode(){
-        nodeHealthService.deregisterNode(currentNode);
+    public synchronized void deregisterAgent(){
+        agentHealthService.deregisterAgent(currentAgent);
     }
 
     /**
      * 释放leader
      */
     public synchronized void releaseLeader(){
-        nodeHealthService.releaseLeader(currentNode);
+        agentHealthService.releaseLeader(currentAgent);
     }
 
 
@@ -84,7 +85,7 @@ public class ClusterMetaService {
      * @return
      */
     public synchronized void electLeader(){
-        isLeader = nodeHealthService.electLeader(currentNode);
+        isLeader = agentHealthService.electLeader(currentAgent);
         if (isLeader){
             // do some thing that leader must do
         }
@@ -93,13 +94,15 @@ public class ClusterMetaService {
 
     /**
      * 从配置文件中合并最新的节点配置
-     * @param nodeMeta
+     * @param agentMeta
      * @param configMeta
      */
-    private void mergeFromConfig(NodeMeta nodeMeta, NodeMeta configMeta){
-        nodeMeta.setIp(configMeta.getIp());
-        nodeMeta.setHost(configMeta.getHost());
-        nodeMeta.setPort(configMeta.getPort());
+    private void mergeFromConfig(AgentMeta agentMeta, AgentMeta configMeta){
+        agentMeta.setIp(configMeta.getIp());
+        agentMeta.setHost(configMeta.getHost());
+        agentMeta.setPort(configMeta.getPort());
+        agentMeta.setType(configMeta.getType());
+
     }
 
     /**
@@ -107,31 +110,34 @@ public class ClusterMetaService {
      * @param configuration
      * @return
      */
-    private NodeMeta buildFromConfiguration(Configuration configuration){
+    private AgentMeta buildFromConfiguration(Configuration configuration){
 
 
-        String nodeName = configuration.getString(ConfigConstants.NODE_NAME_KEY);
+        String agentName = configuration.getString(ConfigConstants.AGENT_NAME_KEY);
         // 以机器host进行划分
-        if (nodeName == null){
-            nodeName = configuration.getString(ConfigConstants.CONSUL_RPC_HOST_KEY);
+        if (agentName == null){
+            agentName = configuration.getString(ConfigConstants.CONSUL_RPC_HOST_KEY);
         }
 
-        int port = ClusterConfigValue.getNodeRpcPort(configuration);
-        String host = configuration.getString(ClusterOptions.NODE_RPC_HOST_OPTION);
-        String ip = configuration.getString(ClusterOptions.NODE_RPC_ADDRESS_OPTION);
+        int port = ClusterConfigValue.getAgentRpcPort(configuration);
+        String host = configuration.getString(ClusterOptions.AGENT_RPC_HOST_OPTION);
+        String ip = configuration.getString(ClusterOptions.AGENT_RPC_ADDRESS_OPTION);
 
-        return new NodeMeta(nodeName,ip,host,port,Lifecycle.State.INITIALIZED);
+        AgentConstant.AgentType agentType = AgentConstant.AgentType.valueOf(
+                configuration.getString(ConfigConstants.AGENT_TYPE_KEY).toUpperCase());
+
+        return new AgentMeta(agentName,ip,host,port,Lifecycle.State.INITIALIZED,agentType);
 
     }
 
     /**
      * 设置本节点的状态
-     * @param nodeStatus
+     * @param agentStatus
      */
-    public void currentNodeStatus(Lifecycle.State nodeStatus){
-        currentNode.setStatus(nodeStatus);
-        LOG.info("currentNodeStatus:{}",nodeStatus);
-        nodeConsulService.upset(currentNode);
+    public void currentAgentStatus(Lifecycle.State agentStatus){
+        currentAgent.setStatus(agentStatus);
+        LOG.info("currentAgentStatus:{}",agentStatus);
+        agentConsulService.upset(currentAgent);
     }
 
     /**

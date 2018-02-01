@@ -9,12 +9,12 @@ import com.xten.cluster.common.util.NetUtils;
  */
 public class ClusterOptions {
 
-    public static final ConfigOption<String> NODE_RPC_HOST_OPTION = ConfigOptions
-            .key(ConfigConstants.NODE_RPC_HOST_KEY)
+    public static final ConfigOption<String> AGENT_RPC_HOST_OPTION = ConfigOptions
+            .key(ConfigConstants.AGENT_RPC_HOST_KEY)
             .defaultValue(NetUtils.getNetAddress().getHostName());
 
-    public static final ConfigOption<String> NODE_RPC_ADDRESS_OPTION = ConfigOptions
-            .key(ConfigConstants.NODE_RPC_ADDRESS_KEY)
+    public static final ConfigOption<String> AGENT_RPC_ADDRESS_OPTION = ConfigOptions
+            .key(ConfigConstants.AGENT_RPC_HOST_KEY)
             .defaultValue(NetUtils.getHostIPSafe());
 
 

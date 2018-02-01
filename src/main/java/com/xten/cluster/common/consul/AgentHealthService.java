@@ -3,7 +3,7 @@ package com.xten.cluster.common.consul;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
-import com.xten.cluster.metadata.NodeMeta;
+import com.xten.cluster.metadata.AgentMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,32 +12,31 @@ import org.slf4j.LoggerFactory;
  * User: kongqingyu
  * Date: 2018/1/4
  */
-public class NodeHealthService {
+public class AgentHealthService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NodeHealthService.class);
-    private static final String SERVICE_NODE = "node";
+    private static final Logger LOG = LoggerFactory.getLogger(AgentHealthService.class);
     private final ConsulService consulService;
 
     private ServiceCheck currentServiceCheck;
 
     @Inject
-    public NodeHealthService(ConsulService consulService){
+    public AgentHealthService(ConsulService consulService){
         this.consulService = consulService;
     }
 
     /**
      * 注册节点
-     * @param nodeMeta
+     * @param agentMeta
      */
-    public void registerNode(NodeMeta nodeMeta){
+    public void registerAgent(AgentMeta agentMeta){
 
         try {
-            String serviceId = nodeMeta.key();
-            consulService.registerService(nodeMeta.getIp(),nodeMeta.getPort(),serviceId,SERVICE_NODE);
+            String serviceId = agentMeta.key();
+            consulService.registerService(agentMeta.getIp(),agentMeta.getPort(),serviceId,agentMeta.getAgentTypeName());
 
 
         } catch (Exception e) {
-            throw new NodeRegisterException(e.getMessage(),e);
+            throw new AgentRegisterException(e.getMessage(),e);
         }
     }
 
@@ -46,14 +45,12 @@ public class NodeHealthService {
      * @param nodeMeta
      * @throws Exception
      */
-    public boolean electLeader(NodeMeta nodeMeta) {
+    public boolean electLeader(AgentMeta nodeMeta) {
 
-        ServiceCheck serviceCheck = consulService.registerSession(nodeMeta.getIp(),nodeMeta.getPort(),
-                nodeMeta.key(),SERVICE_NODE);
+        currentServiceCheck = consulService.registerSession(nodeMeta.getIp(),nodeMeta.getPort(),
+                nodeMeta.key(),nodeMeta.getAgentTypeName());
 
-        currentServiceCheck = serviceCheck;
-
-        Optional<String> leaderInfo = consulService.electLeaderForService(SERVICE_NODE,nodeMeta.key(),
+        Optional<String> leaderInfo = consulService.electLeaderForService(nodeMeta.getType().name(),nodeMeta.key(),
                 currentServiceCheck.getSessionId());
 
         // 如果当前服务是Leader，则进行标记
@@ -65,7 +62,7 @@ public class NodeHealthService {
      * 释放Leader权限
      * @return
      */
-    public void releaseLeader(NodeMeta nodeMeta){
+    public void releaseLeader(AgentMeta nodeMeta){
 
 
         Preconditions.checkNotNull(currentServiceCheck,"currentServiceCheck is null,name is:"+nodeMeta.key());
@@ -76,7 +73,7 @@ public class NodeHealthService {
 
     }
 
-    public void deregisterNode(NodeMeta nodeMeta){
+    public void deregisterAgent(AgentMeta nodeMeta){
         consulService.deregisterService(nodeMeta.key());
     }
 

@@ -3,7 +3,7 @@ package com.xten.cluster.bootstrap;
 import com.xten.cluster.common.configuration.ConfigConstants;
 import com.xten.cluster.common.configuration.Configuration;
 import com.xten.cluster.common.configuration.IllegalConfigurationException;
-import com.xten.cluster.node.NodeBootstrap;
+import com.xten.cluster.agent.AgentBootstrap;
 import org.apache.commons.cli.*;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -35,7 +35,7 @@ public class Bootstrap {
 
         LOG.info("configuration:{}",configuration.keySet());
 
-        NodeBootstrap clusterNode = new NodeBootstrap(configuration);
+        AgentBootstrap clusterNode = new AgentBootstrap(configuration);
         clusterNode.start();
 
     }
