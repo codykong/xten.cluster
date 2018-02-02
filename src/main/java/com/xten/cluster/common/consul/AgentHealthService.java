@@ -31,8 +31,7 @@ public class AgentHealthService {
     public void registerAgent(AgentMeta agentMeta){
 
         try {
-            String serviceId = agentMeta.key();
-            consulService.registerService(agentMeta.getIp(),agentMeta.getPort(),serviceId,agentMeta.getAgentTypeName());
+            consulService.registerService(agentMeta.getIp(),agentMeta.getPort(),agentMeta.serviceId(),agentMeta.getAgentTypeName());
 
 
         } catch (Exception e) {
@@ -48,9 +47,9 @@ public class AgentHealthService {
     public boolean electLeader(AgentMeta nodeMeta) {
 
         currentServiceCheck = consulService.registerSession(nodeMeta.getIp(),nodeMeta.getPort(),
-                nodeMeta.key(),nodeMeta.getAgentTypeName());
+                nodeMeta.serviceId(),nodeMeta.getAgentTypeName());
 
-        Optional<String> leaderInfo = consulService.electLeaderForService(nodeMeta.getType().name(),nodeMeta.key(),
+        Optional<String> leaderInfo = consulService.electLeaderForService(nodeMeta.getType().name(),nodeMeta.getName(),
                 currentServiceCheck.getSessionId());
 
         // 如果当前服务是Leader，则进行标记
@@ -65,7 +64,7 @@ public class AgentHealthService {
     public void releaseLeader(AgentMeta nodeMeta){
 
 
-        Preconditions.checkNotNull(currentServiceCheck,"currentServiceCheck is null,name is:"+nodeMeta.key());
+        Preconditions.checkNotNull(currentServiceCheck,"currentServiceCheck is null,name is:"+nodeMeta.checkId());
 
         consulService.releaseLock(currentServiceCheck.getServiceId(),currentServiceCheck.getSessionId());
         consulService.destroySession(currentServiceCheck.getSessionId());
@@ -74,7 +73,7 @@ public class AgentHealthService {
     }
 
     public void deregisterAgent(AgentMeta nodeMeta){
-        consulService.deregisterService(nodeMeta.key());
+        consulService.deregisterService(nodeMeta.serviceId());
     }
 
 

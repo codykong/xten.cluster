@@ -82,12 +82,12 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    public void heardAgentStopped(String nodeId) {
-
+    public void heardAgentStopped(String agentId) {
+        LOG.info("heardAgentStopped:{}",agentId);
     }
 
     @Override
-    public void heardAgentStarted(String nodeId) {
-
+    public void heardAgentStarted(String agentId) {
+        LOG.info("heardAgentStarted:{}",agentId);
     }
 }

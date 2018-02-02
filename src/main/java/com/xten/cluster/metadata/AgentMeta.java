@@ -77,6 +77,14 @@ public class AgentMeta extends JsonMeta {
         return MetaKey.agent(name);
     }
 
+    public String serviceId(){
+        return MetaKey.agentServiceId(name);
+    }
+
+    public String checkId(){
+        return MetaKey.agentCheckId(name);
+    }
+
     public static AgentMeta fromJsonContent(String jsonContent) {
         return new Gson().fromJson(jsonContent,AgentMeta.class);
     }

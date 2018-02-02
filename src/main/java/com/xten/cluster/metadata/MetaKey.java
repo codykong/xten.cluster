@@ -1,6 +1,7 @@
 package com.xten.cluster.metadata;
 
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
@@ -13,9 +14,19 @@ import javax.annotation.Nullable;
 public class MetaKey {
 
     private static final String SEPARATOR = "/";
+    private static final String SERVICE_SEPARATOR = ":";
     public static final String PREFIX_AGENT = "agent";
     public static final String PREFIX_ROOT = "cluster";
 
+    public static String agentServiceId(String id){
+        Preconditions.checkNotNull(id,"serviceId can not be null");
+        return PREFIX_ROOT +  SERVICE_SEPARATOR + "service" + SERVICE_SEPARATOR + id;
+    }
+
+    public static String agentCheckId(String id){
+        Preconditions.checkNotNull(id,"check can not be null");
+        return PREFIX_ROOT +  SERVICE_SEPARATOR + "check" + SERVICE_SEPARATOR + id;
+    }
 
     /**
      * node元数据对应的key

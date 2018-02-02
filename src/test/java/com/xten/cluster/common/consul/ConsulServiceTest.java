@@ -94,4 +94,11 @@ public class ConsulServiceTest extends BaseTest{
     public void getKeys() throws Exception {
     }
 
+    @Test
+    public void clearFailedCheck() {
+        consulService.clearFailedCheck();
+
+//        consulService.getConsul().agentClient().deregisterCheck("agent");
+    }
+
 }

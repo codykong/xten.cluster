@@ -36,10 +36,8 @@ public class AgentMetaChangedAction extends AbstractKVCacheAction {
         changedKVs.stream().forEach(p -> {
             if (p.getKvCacheCode() == CachedKV.KVCacheCode.REMOVED){
                 clusterMetaCache.delNodeMeta(p.getKey());
-                LOG.info("AgentKVChanged,status:{},key:{},value:{}",p.getKvCacheCode(),p.getKey(),p.getOldValueAsString());
             }else if (p.getValueAsString().isPresent()){
                 clusterMetaCache.addNodeMeta(AgentMeta.fromJsonContent(p.getValueAsString().get()));
-                LOG.info("AgentKVChanged,status:{},key:{},value:{}",p.getKvCacheCode(),p.getKey(),p.getValueAsString());
             }
         });
     }

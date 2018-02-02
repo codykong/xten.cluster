@@ -21,12 +21,11 @@ public abstract class  AbstractServiceCheckAction implements ServiceCheckAction<
     public void notify(Map<ServiceHealthKey, ServiceHealth> newValues) {
 
 
-        List<CachedService> changedServices = new ArrayList<>();
         if (concernedServices == null){
             initConcernedService(newValues);
             concernedServices.values().stream().forEach(p -> {
                 p.setServiceStatus(CachedService.ServiceStatus.INIT);
-                changedServices.add(p);
+                serviceInit(p);
             });
 
         }else {
@@ -39,14 +38,14 @@ public abstract class  AbstractServiceCheckAction implements ServiceCheckAction<
                 if (concernedService == null){
                     CachedService newService = new CachedService(entry.getValue().getService(), CachedService.CheckStatus.PASSING);
                     newService.setServiceStatus(CachedService.ServiceStatus.UP);
-                    changedServices.add(newService);
+                    serviceUp(newService);
                     concernedServices.put(newService.getId(),newService);
                     // 如果存在的服务是已停止的服务，则是已停止服务启动
                 }else if (concernedService.getCheckStatus().equals(CachedService.CheckStatus.CRITICAL)){
                     concernedService.setServiceStatus(CachedService.ServiceStatus.UP);
                     concernedService.setCheckStatus(CachedService.CheckStatus.PASSING);
 
-                    changedServices.add(concernedService);
+                    serviceUp(concernedService);
 
                 }
 
@@ -54,6 +53,7 @@ public abstract class  AbstractServiceCheckAction implements ServiceCheckAction<
                 // 如果存在的服务是运行中的服务，则不做任何操作
             }
 
+            List<String> downServices = new ArrayList<>();
             // 找出宕机的服务
             concernedServices.values().stream()
                     .filter(p -> p.getCheckStatus().equals(CachedService.CheckStatus.PASSING))
@@ -63,16 +63,17 @@ public abstract class  AbstractServiceCheckAction implements ServiceCheckAction<
                             CachedService downService = concernedServices.get(p.getId());
                             downService.setServiceStatus(CachedService.ServiceStatus.DOWN);
                             downService.setCheckStatus(CachedService.CheckStatus.CRITICAL);
-                            changedServices.add(downService);
+                            serviceDown(downService);
+                            downServices.add(downService.getId());
+
 
                         }
                     });
-
+            //将已经停止的服务删除
+            downServices.stream().forEach(p -> concernedServices.remove(p));
 
 
         }
-
-        changedServiceNotify(changedServices);
     }
 
     @Override
@@ -81,7 +82,11 @@ public abstract class  AbstractServiceCheckAction implements ServiceCheckAction<
     }
 
 
-    public abstract void changedServiceNotify(List<CachedService> changedServices);
+    public abstract void serviceInit(CachedService service);
+
+    public abstract void serviceUp(CachedService service);
+
+    public abstract void serviceDown(CachedService service);
 
 
     public void initConcernedService(Map<ServiceHealthKey, ServiceHealth> map){

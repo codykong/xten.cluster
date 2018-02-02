@@ -22,7 +22,7 @@ public class AgentBootstrap {
     private static final Logger LOG = LoggerFactory.getLogger(AgentBootstrap.class);
 
     private final Configuration configuration;
-    private final AgentService clusterNodeService;
+    private final AgentService clusterAgentService;
 
 
     @Inject
@@ -42,7 +42,7 @@ public class AgentBootstrap {
 
         Injector injector = modules.createInjector();
 
-        clusterNodeService = injector.getInstance(AgentService.class);
+        clusterAgentService = injector.getInstance(AgentService.class);
 
         addShutdownHook();
     }
@@ -52,10 +52,10 @@ public class AgentBootstrap {
      */
     public void start(){
         try {
-            clusterNodeService.start();
+            clusterAgentService.start();
         } catch (Exception e) {
             LOG.error("start clusterNodeService error, stop begin:"+e.getMessage(),e);
-            clusterNodeService.stop();
+            clusterAgentService.stop();
             LOG.error("start clusterNodeService error, stop end:");
             System.exit(-1);
         }
@@ -70,7 +70,7 @@ public class AgentBootstrap {
 
             @Override
             public void run() {
-                clusterNodeService.stop();
+                clusterAgentService.stop();
             }
 
         });

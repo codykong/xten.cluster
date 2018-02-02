@@ -11,14 +11,14 @@ public interface AgentService extends LifecycleComponent {
 
     /**
      * 被通知节点已停止
-     * @param nodeId
+     * @param agentId
      */
-    void heardAgentStopped(String nodeId);
+    void heardAgentStopped(String agentId);
 
     /**
      * 被通知节点已启动
-     * @param nodeId
+     * @param agentId
      */
-    void heardAgentStarted(String nodeId);
+    void heardAgentStarted(String agentId);
 
 }

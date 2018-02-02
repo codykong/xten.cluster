@@ -6,11 +6,14 @@ import com.google.common.net.HostAndPort;
 import com.google.inject.Inject;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
-import com.orbitz.consul.model.agent.Check;
-import com.orbitz.consul.model.agent.ImmutableCheck;
+import com.orbitz.consul.model.ConsulResponse;
+import com.orbitz.consul.model.State;
+import com.orbitz.consul.model.agent.*;
+import com.orbitz.consul.model.health.HealthCheck;
 import com.orbitz.consul.model.kv.Value;
 import com.orbitz.consul.model.session.ImmutableSession;
 import com.orbitz.consul.model.session.Session;
+import com.orbitz.consul.option.QueryOptions;
 import com.xten.cluster.common.configuration.ConfigConstants;
 import com.xten.cluster.common.configuration.Configuration;
 import com.xten.cluster.common.configuration.IllegalConfigurationException;
@@ -336,6 +339,28 @@ public class ConsulService {
         List<String> keys = consul.keyValueClient().getKeys(key);
 
         return keys;
+    }
+
+    /**
+     * 清空失败的Check
+     */
+    public void clearFailedCheck(){
+        ConsulResponse<List<HealthCheck>> response = consul.healthClient().getChecksByState(State.FAIL);
+
+        response.getResponse().stream().forEach(p -> {
+
+            Optional<String> service = p.getServiceId();
+
+            if (service.isPresent() && !service.get().isEmpty()){
+                consul.agentClient().deregister(service.get());
+            }
+
+            if (p.getCheckId() != null && !p.getCheckId().isEmpty()){
+
+                consul.agentClient().deregisterCheck(p.getCheckId());
+            }
+
+        });
     }
 
 
